@@ -1,0 +1,426 @@
+{
+	"info": {
+		"_postman_id": "30352efe-a9b9-4be3-88b2-df231d6b762f",
+		"name": "Restful-booker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CreateToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "917d180f-c9bb-49c6-bc50-a5f12bad0ee9",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const response = pm.response.json();",
+							"pm.globals.set(\"token\", response.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\" : \"admin\",\n    \"password\" : \"password123\"\n}"
+				},
+				"url": {
+					"raw": "https://restful-booker.herokuapp.com/auth",
+					"protocol": "https",
+					"host": [
+						"restful-booker",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"auth"
+					]
+				},
+				"description": "Creates a new auth token to use for access to the PUT and DELETE /booking"
+			},
+			"response": []
+		},
+		{
+			"name": "GetBookingIds",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "40eb51a2-b4ab-44e1-9807-c76fdea21542",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://restful-booker.herokuapp.com/booking",
+					"protocol": "https",
+					"host": [
+						"restful-booker",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"booking"
+					]
+				},
+				"description": "Returns the ids of all the bookings that exist within the API. Can take optional query strings to search and return a subset of booking ids."
+			},
+			"response": []
+		},
+		{
+			"name": "CreateBooking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "74f44de9-48fc-4e68-ae6c-69caec34911e",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"const response = pm.response.json();",
+							"pm.globals.set(\"bookingId\", response.bookingid);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstname\" : \"Jim\",\n    \"lastname\" : \"Brown\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"2018-01-01\",\n        \"checkout\" : \"2019-01-01\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+				},
+				"url": {
+					"raw": "https://restful-booker.herokuapp.com/booking",
+					"protocol": "https",
+					"host": [
+						"restful-booker",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"booking"
+					]
+				},
+				"description": "Creates a new booking in the API"
+			},
+			"response": []
+		},
+		{
+			"name": "GetBooking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8eac2fb2-8624-429e-a08a-496716da6413",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://restful-booker.herokuapp.com/booking/:id",
+					"protocol": "https",
+					"host": [
+						"restful-booker",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"booking",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{bookingId}}"
+						}
+					]
+				},
+				"description": "Returns a specific booking based upon the booking id provided"
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBooking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "86a8e5a9-b577-4339-bf08-fc0ba959947b",
+						"exec": [
+							"pm.test(\"Status code is 418\", function () {",
+							"    pm.response.to.have.status(418);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true,
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Cookie",
+						"value": "token={{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46cGFzc3dvcmQxMjM=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstname\" : \"JJ\",\n    \"lastname\" : \"Brown\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"2018-01-01\",\n        \"checkout\" : \"2019-01-01\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+				},
+				"url": {
+					"raw": "https://restful-booker.herokuapp.com/booking/:id",
+					"protocol": "https",
+					"host": [
+						"restful-booker",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"booking",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{bookingId}}"
+						}
+					]
+				},
+				"description": "Updates a current booking"
+			},
+			"response": []
+		},
+		{
+			"name": "PartialUpdateBooking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0030e372-ac4f-474e-acc8-93983121a693",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Cookie",
+						"value": "token={{token}}"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46cGFzc3dvcmQxMjM=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstname\" : \"JIMS\",\n    \"lastname\" : \"Brown\"\n}"
+				},
+				"url": {
+					"raw": "https://restful-booker.herokuapp.com/booking/:id",
+					"protocol": "https",
+					"host": [
+						"restful-booker",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"booking",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{bookingId}}"
+						}
+					]
+				},
+				"description": "Updates a current booking with a partial payload"
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteBooking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1d7f2fb5-7fed-4d51-aa1b-7611fb1b3ac5",
+						"exec": [
+							"pm.test(\"Status code is 201, created\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorisation",
+						"value": "Basic YWRtaW46cGFzc3dvcmQxMjM="
+					},
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://restful-booker.herokuapp.com/booking/:id",
+					"protocol": "https",
+					"host": [
+						"restful-booker",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"booking",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{bookingId}}"
+						}
+					]
+				},
+				"description": "Returns the ids of all the bookings that exist within the API. Can take optional query strings to search and return a subset of booking ids."
+			},
+			"response": []
+		},
+		{
+			"name": "HealthCheck",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7a268e09-6760-4880-bc3c-0b11148307e1",
+						"exec": [
+							"pm.test(\"Status code is 201, created\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"pm.globals.unset(\"token\");",
+							"pm.globals.unset(\"bookingId\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://restful-booker.herokuapp.com/ping",
+					"protocol": "https",
+					"host": [
+						"restful-booker",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"ping"
+					]
+				},
+				"description": "A simple health check endpoint to confirm whether the API is up and running."
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
