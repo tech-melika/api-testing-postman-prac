@@ -6,6 +6,109 @@
 	},
 	"item": [
 		{
+			"name": "Ping",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a99378e9-897b-426f-b438-5e6c4c22a27f",
+						"exec": [
+							"//skip a test function",
+							"pm.test.skip(\"Move over this test\", function(){",
+							"    //this test is still being created.",
+							"});",
+							"",
+							"pm.test('Content-Type header is correct', () => pm.response.to.have.header('Content-Type', 'text/plain; charset=utf-8'))",
+							"pm.test('Response Time under 200 ms', () => pm.expect(pm.response.responseTime).to.be.below(500))",
+							"",
+							"//different ways to check status code",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"// This checks the status text string",
+							"pm.test('Test 2: 201 Status Code', () => pm.response.to.have.status('Created'))",
+							"",
+							"",
+							"// This is using a different rule offered by Postman (.code) and checking that it equals 200",
+							"pm.test('Test 4: 201 Status Code', () => pm.expect(pm.response.code).to.equal(201))",
+							"",
+							"//Checks 2XX status code",
+							"pm.test('Test 3: 200 Status Code', () => pm.response.to.be.success)",
+							"",
+							"//use dynamic variables in Tests and Pre-request",
+							"// {{$timestamp}} alternative",
+							"const moment = require('moment')",
+							"console.log(`Timestamp: ${moment().valueOf()}`)",
+							"",
+							"// {{$guid}} alternative",
+							"const uuid = require('uuid')",
+							"console.log(`Guid: ${uuid()}`)",
+							"",
+							"// {{$randomInt}} alternative",
+							"const randomInt = _.random(1000)",
+							"console.log(`Random Number: ${randomInt}`)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "f503d1e6-16cc-423a-9a5f-97d01d81dbd6",
+						"exec": [
+							"//Pulling all those things together, before the main request is made Postman will create all the data and store them as environment variables. You can see in the clip that these are saved against the Restful_Booker_Environment file.",
+							"",
+							"//This generated template is using one of the Postman test endpoints to send a GET request to https://randomuser.me/api/ and then logging the response out to the Postman Console.",
+							"pm.sendRequest(\"https://randomuser.me/api/\", (err, res) => {",
+							"   // Get the values from the response and store them as a variable",
+							"    var firstname = res.json().results[0].name.first",
+							"    var lastname  = res.json().results[0].name.last",
+							"",
+							"    // Format and save the values as an environment variable to use in the body of the next request",
+							"    //Lodash module (_capitalize)",
+							"    pm.environment.set(\"first_name\", JSON.stringify((_.capitalize(firstname))))",
+							"    pm.environment.set(\"last_name\", JSON.stringify((_.capitalize(lastname))))",
+							"});",
+							"",
+							"//The shuffle() function does exactly that, we create an list of values and each time the request is made, the function will shuffle the order of the list and we set the first value [0] as our environment variable.",
+							"pm.environment.set(\"total_price\", _.random(0, 1000))",
+							"",
+							"const depositPaid = [true, false]",
+							"pm.environment.set(\"depositPaid\", _.shuffle(depositPaid)[0])",
+							"",
+							"const items = [\"None\", \"Breakfast\", \"Lunch\", \"Dinner\", \"Late Checkout\", \"Newspaper\", \"Extra Pillow\"]",
+							"pm.environment.set(\"additional_needs\", JSON.stringify(_.shuffle(items)[0]))",
+							"",
+							"//For the sample data set we know that the format of the date needs to be 'Year-Month-Day' and we can set this using the format() function. I've also used the add() function on the checkout date to ensure that it's after the checkin date.",
+							"const moment = require('moment')",
+							"pm.environment.set(\"check_in\", JSON.stringify(moment().format('YYYY-MM-DD')))",
+							"pm.environment.set(\"check_out\", JSON.stringify(moment().add(_.random(1, 14), 'days').format('YYYY-MM-DD')))",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/ping",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"ping"
+					]
+				},
+				"description": "doing a health check"
+			},
+			"response": []
+		},
+		{
 			"name": "CreateToken",
 			"event": [
 				{
@@ -37,12 +140,9 @@
 					"raw": "{\n    \"username\" : \"admin\",\n    \"password\" : \"password123\"\n}"
 				},
 				"url": {
-					"raw": "https://restful-booker.herokuapp.com/auth",
-					"protocol": "https",
+					"raw": "{{baseURL}}/auth",
 					"host": [
-						"restful-booker",
-						"herokuapp",
-						"com"
+						"{{baseURL}}"
 					],
 					"path": [
 						"auth"
@@ -62,7 +162,12 @@
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
-							"});"
+							"});",
+							"",
+							"// This is using a pre-defined rule offered by Postman",
+							"pm.test('Test 3: 200 Status Code', () => pm.response.to.be.ok)",
+							"",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -72,18 +177,92 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://restful-booker.herokuapp.com/booking",
-					"protocol": "https",
+					"raw": "{{baseURL}}/booking",
 					"host": [
-						"restful-booker",
-						"herokuapp",
-						"com"
+						"{{baseURL}}"
 					],
 					"path": [
 						"booking"
 					]
 				},
 				"description": "Returns the ids of all the bookings that exist within the API. Can take optional query strings to search and return a subset of booking ids."
+			},
+			"response": []
+		},
+		{
+			"name": "GetARandomBooking",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "08755ebb-30a1-4587-8a92-230e257d9ea9",
+						"exec": [
+							"//Lodash function",
+							"pm.globals.set(\"id_dynamic\", _.random(0,10));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "49dd9537-9ac5-45c4-98af-bc63432894b3",
+						"exec": [
+							"pm.test(\"Response data format is correct\", () => {",
+							"    var jsonData = pm.response.json()",
+							"    pm.expect(jsonData.firstname).to.be.a('string')",
+							"    pm.expect(jsonData.lastname).to.be.a('string')",
+							"    pm.expect(jsonData.totalprice).to.a('number')",
+							"    pm.expect(jsonData.depositpaid).to.be.a('boolean')",
+							"    pm.expect(jsonData.bookingdates.checkin).to.be.a('string')",
+							"    pm.expect(jsonData.bookingdates.checkin).to.match(/^\\d{4}-\\d{2}-\\d{2}$/)",
+							"    pm.expect(jsonData.bookingdates.checkout).to.be.a('string')",
+							"    pm.expect(jsonData.bookingdates.checkout).to.match(/^\\d{4}-\\d{2}-\\d{2}$/)",
+							"});",
+							"//some response has \"additionalneeds\": \"Breakfast\" but some are not",
+							"//JavaScript Conditional Operator",
+							"//It's basically checking the response body data for the additionalneeds property, if it's missing this check would return an undefined value. In that case we would skip over the test but if the additionalneeds property is within the response body, then we check to see if the value is a string.",
+							"(pm.response.json().additionalneeds === undefined ? pm.test.skip : pm.test)('Customer has additional needs', () => {",
+							"        pm.expect(pm.response.json().additionalneeds).to.be.a('string')",
+							"});",
+							"",
+							"//we could also use if/else statement to check",
+							"if (pm.response.json().additionalneeds === undefined){",
+							"    pm.test.skip(\"Customer has no additional needs\", () => {",
+							"        return",
+							"    })",
+							"} else {",
+							"    pm.test(\"Customer has additional needs\", () => {",
+							"        pm.expect(pm.response.json().additionalneeds).to.be.a('string')",
+							"    })",
+							"}",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/booking/:id",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"booking",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{id_dynamic}}"
+						}
+					]
+				}
 			},
 			"response": []
 		},
@@ -99,7 +278,28 @@
 							"    pm.response.to.have.status(200);",
 							"});",
 							"const response = pm.response.json();",
-							"pm.globals.set(\"bookingId\", response.bookingid);"
+							"pm.globals.set(\"bookingId\", response.bookingid);",
+							"",
+							"//We may have a need to clear out all the saved data in the environment variables, from the previous request. This JavaScript function can be added to the Tests tab that will do just that...",
+							"function cleanup() {",
+							"    const clean = ['first_name', 'last_name', 'total_price', 'depositPaid', 'check_in', 'check_out', 'additional_needs']",
+							"    for(let i = 0; i < clean.length; ++i){",
+							"        pm.environment.unset(clean[i])",
+							"    }",
+							"}",
+							"cleanup()"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d255bcf1-28ce-4ebd-8dc9-2f5ab20d904e",
+						"exec": [
+							"",
+							"",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -115,15 +315,12 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstname\" : \"Jim\",\n    \"lastname\" : \"Brown\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"2018-01-01\",\n        \"checkout\" : \"2019-01-01\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+					"raw": "{\n    \"firstname\" : {{first_name}},\n    \"lastname\" : {{last_name}},\n    \"totalprice\" : {{total_price}},\n    \"depositpaid\" : {{depositPaid}},\n    \"bookingdates\" : {\n        \"checkin\" : {{check_in}},\n        \"checkout\" : {{check_out}}\n    },\n    \"additionalneeds\" : {{additional_needs}}\n}"
 				},
 				"url": {
-					"raw": "https://restful-booker.herokuapp.com/booking",
-					"protocol": "https",
+					"raw": "{{baseURL}}/booking",
 					"host": [
-						"restful-booker",
-						"herokuapp",
-						"com"
+						"{{baseURL}}"
 					],
 					"path": [
 						"booking"
@@ -153,12 +350,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://restful-booker.herokuapp.com/booking/:id",
-					"protocol": "https",
+					"raw": "{{baseURL}}/booking/:id",
 					"host": [
-						"restful-booker",
-						"herokuapp",
-						"com"
+						"{{baseURL}}"
 					],
 					"path": [
 						"booking",
@@ -233,15 +427,12 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstname\" : \"JJ\",\n    \"lastname\" : \"Brown\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"2018-01-01\",\n        \"checkout\" : \"2019-01-01\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+					"raw": "{\n   \"firstname\": \"Lélia\",\n    \"lastname\": \"Nunes\",\n    \"totalprice\": 200,\n    \"depositpaid\": false,\n    \"bookingdates\": {\n        \"checkin\": \"2020-09-21\",\n        \"checkout\": \"2020-09-27\"\n    },\n    \"additionalneeds\": \"Newspaper\"\n}"
 				},
 				"url": {
-					"raw": "https://restful-booker.herokuapp.com/booking/:id",
-					"protocol": "https",
+					"raw": "{{baseURL}}/booking/:id",
 					"host": [
-						"restful-booker",
-						"herokuapp",
-						"com"
+						"{{baseURL}}"
 					],
 					"path": [
 						"booking",
@@ -306,12 +497,9 @@
 					"raw": "{\n    \"firstname\" : \"JIMS\",\n    \"lastname\" : \"Brown\"\n}"
 				},
 				"url": {
-					"raw": "https://restful-booker.herokuapp.com/booking/:id",
-					"protocol": "https",
+					"raw": "{{baseURL}}/booking/:id",
 					"host": [
-						"restful-booker",
-						"herokuapp",
-						"com"
+						"{{baseURL}}"
 					],
 					"path": [
 						"booking",
@@ -362,12 +550,9 @@
 					}
 				],
 				"url": {
-					"raw": "https://restful-booker.herokuapp.com/booking/:id",
-					"protocol": "https",
+					"raw": "{{baseURL}}/booking/:id",
 					"host": [
-						"restful-booker",
-						"herokuapp",
-						"com"
+						"{{baseURL}}"
 					],
 					"path": [
 						"booking",
@@ -385,6 +570,45 @@
 			"response": []
 		},
 		{
+			"name": "GetDeletedBooking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "23b2d398-8303-4c6e-aa1d-5ddb3758e0dd",
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/booking/:id",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"booking",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{bookingId}}"
+						}
+					]
+				},
+				"description": "Returns a specific booking based upon the booking id provided"
+			},
+			"response": []
+		},
+		{
 			"name": "HealthCheck",
 			"event": [
 				{
@@ -395,8 +619,11 @@
 							"pm.test(\"Status code is 201, created\", function () {",
 							"    pm.response.to.have.status(201);",
 							"});",
+							"//cleaning individual global variable",
 							"pm.globals.unset(\"token\");",
-							"pm.globals.unset(\"bookingId\");"
+							"",
+							"//clearup all global variables",
+							"pm.globals.clear();"
 						],
 						"type": "text/javascript"
 					}
@@ -406,12 +633,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://restful-booker.herokuapp.com/ping",
-					"protocol": "https",
+					"raw": "{{baseURL}}/ping",
 					"host": [
-						"restful-booker",
-						"herokuapp",
-						"com"
+						"{{baseURL}}"
 					],
 					"path": [
 						"ping"
@@ -420,6 +644,35 @@
 				"description": "A simple health check endpoint to confirm whether the API is up and running."
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "6e669030-f218-4f08-87cd-374dcaf1c3f5",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "47e078df-d2b3-46f7-94b9-cb88221eaf0d",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "d01ae4ce-f129-4069-8f97-c9ddf88d9211",
+			"key": "baseURL",
+			"value": "https://restful-booker.herokuapp.com"
 		}
 	],
 	"protocolProfileBehavior": {}
