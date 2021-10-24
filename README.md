@@ -10,7 +10,7 @@ demo site: [Restful-booker](https://restful-booker.herokuapp.com/)
 ```console
 git clone https://github.com/Parizat58/api-testing-postman-prac.git
 ```
-- Open terminal and cd to the repo directory on your local machine
+- open terminal and cd to the repo directory on your local machine
 - run this command
 ```console
 newman run Restful-booker.postman_collection.json -r cli
